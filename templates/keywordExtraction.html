@@ -1,0 +1,26 @@
+<html>
+  <head>
+    {% if title %}
+    <title>{{title}}</title>
+    {% else %}
+    <title>Test</title>
+    {% endif %}
+  </head>
+  <body>
+    <h1>Chinese Keyword Extraction</h1>
+    <form actions ="" method="post">
+      {{form.hidden_tag()}}
+      <p>
+          {{form.text.label}}<br>
+          {{form.text(size=32)}}
+      </p>
+      <p>
+          {{form.numRes.label}}<br>
+          {{form.numRes(size=32)}}
+      </p>
+      <p>
+          {{form.submit()}}
+      </p>
+    </form>
+  </body>
+</html>

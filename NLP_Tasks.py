@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request, jsonify, abort, make_response
+from flask import Flask, request, jsonify, abort, make_response, render_template,flash,redirect
 from flask_httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired
 
 import jieba.analyse
 
 app = Flask(__name__)
+app.config["SECRET_KEY"]="2099"
 
 
 # @auth.get_password
@@ -16,9 +20,38 @@ app = Flask(__name__)
 #     else:
 #         return None
 
+
 @auth.error_handler
 def unauthorized():
     return make_response(jsonify({"error":"Unauthorized access:"}),403)
+
+@app.route("/")
+@app.route("/index")
+def index():
+    return render_template("index.html",title="NLP Tasks")
+
+class loginForm(FlaskForm):
+    text = StringField("Text", validators=[DataRequired()])
+    numRes = StringField("Number of Results",validators=[DataRequired()])
+
+    submit = SubmitField("Submit")
+
+
+@app.route("/keywordsForm",methods=["GET","POST"])
+def keywordsForm():
+    form = loginForm()
+    if form.validate_on_submit():
+        text = form.text.data
+        numRes = 5
+        try:
+            numRes = int(form.numRes.data)
+        except ValueError,e:
+            print(e)
+        jieba_important = jieba.analyse.textrank(text,topK=numRes,withWeight=True)
+
+        return jsonify(jieba_important)
+    return render_template("keywordExtraction.html",title="NLP Tasks",form = form)
+
 
 @app.route("/keywords",methods=["GET","POST"])
 #@auth.login_required
